@@ -1,0 +1,35 @@
+# Docker Compose - API + Streamlit
+# Usage : docker-compose up --build
+
+services:
+  api:
+    build: .
+    ports:
+      - "8001:8001"
+    volumes:
+      # Persister le cache HuggingFace (évite de retélécharger les modèles à chaque recréation)
+      - hf_cache:/app/.cache/huggingface
+      # Fichiers RAG : monter le dossier pour inclure index.faiss et chunks.pkl s'ils existent
+      - .:/app
+    environment:
+      - JSON_PAR_VILLE_PATH=/app/json_par_ville.json
+    # Ressources (les modèles ML sont gourmands)
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  streamlit:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    command: ["streamlit", "run", "07_streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0", "--server.headless", "true"]
+    environment:
+      - API_IMMOBILIER_URL=http://api:8001
+    depends_on:
+      - api
+
+volumes:
+  hf_cache:

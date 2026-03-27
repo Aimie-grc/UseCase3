@@ -1,0 +1,9 @@
+# Éviter de copier des fichiers inutiles
+__pycache__
+*.pyc
+.git
+.venv
+venv
+.env
+*.md
+.cursor
